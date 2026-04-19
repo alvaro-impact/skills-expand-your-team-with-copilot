@@ -569,6 +569,15 @@ document.addEventListener("DOMContentLoaded", () => {
         `
         }
       </div>
+      <div class="share-section">
+        <span class="share-label">Share:</span>
+        <div class="share-buttons">
+          <button class="share-btn share-twitter" data-activity="${name}" title="Share on X (Twitter)">𝕏</button>
+          <button class="share-btn share-whatsapp" data-activity="${name}" title="Share on WhatsApp">💬</button>
+          <button class="share-btn share-copy" data-activity="${name}" title="Copy link">🔗</button>
+          <button class="share-btn share-native" data-activity="${name}" title="Share">⬆ Share</button>
+        </div>
+      </div>
     `;
 
     // Add click handlers for delete buttons
@@ -585,6 +594,52 @@ document.addEventListener("DOMContentLoaded", () => {
           openRegistrationModal(name);
         });
       }
+    }
+
+    // Build share text and URL for this activity
+    const shareText = `Check out "${name}" at Mergington High School! ${details.description} Schedule: ${formattedSchedule}`;
+    const shareUrl = `${window.location.origin}${window.location.pathname}?activity=${encodeURIComponent(name)}`;
+
+    // Twitter/X share button
+    const twitterBtn = activityCard.querySelector(".share-twitter");
+    twitterBtn.addEventListener("click", () => {
+      const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+      window.open(tweetUrl, "_blank", "noopener,noreferrer");
+    });
+
+    // WhatsApp share button
+    const whatsappBtn = activityCard.querySelector(".share-whatsapp");
+    whatsappBtn.addEventListener("click", () => {
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + " " + shareUrl)}`;
+      window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+    });
+
+    // Copy link button
+    const copyBtn = activityCard.querySelector(".share-copy");
+    copyBtn.addEventListener("click", () => {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        const original = copyBtn.textContent;
+        copyBtn.textContent = "✓";
+        copyBtn.classList.add("share-copied");
+        setTimeout(() => {
+          copyBtn.textContent = original;
+          copyBtn.classList.remove("share-copied");
+        }, 2000);
+      });
+    });
+
+    // Native share button (Web Share API) — hide if not supported
+    const nativeBtn = activityCard.querySelector(".share-native");
+    if (navigator.share) {
+      nativeBtn.addEventListener("click", () => {
+        navigator.share({
+          title: name,
+          text: shareText,
+          url: shareUrl,
+        });
+      });
+    } else {
+      nativeBtn.classList.add("hidden");
     }
 
     activitiesList.appendChild(activityCard);
