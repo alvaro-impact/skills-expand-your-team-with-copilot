@@ -625,6 +625,8 @@ document.addEventListener("DOMContentLoaded", () => {
           copyBtn.textContent = original;
           copyBtn.classList.remove("share-copied");
         }, 2000);
+      }).catch(() => {
+        showMessage("Could not copy link. Please copy it manually.", "error");
       });
     });
 
@@ -636,6 +638,10 @@ document.addEventListener("DOMContentLoaded", () => {
           title: name,
           text: shareText,
           url: shareUrl,
+        }).catch((err) => {
+          if (err.name !== "AbortError") {
+            showMessage("Sharing failed. Please try another option.", "error");
+          }
         });
       });
     } else {
